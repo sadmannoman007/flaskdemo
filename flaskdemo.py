@@ -12,19 +12,21 @@ app.secret_key = 'IT@JCUA0Zr98j/3yXa R~XHH!jmN]LWX/,?RT'
 
 @app.route('/')
 def home():
-    """Home page route."""
+    """Render the home page."""
     return render_template("home.html")
 
 
 @app.route('/about')
 def about():
-    """About page route."""
-    return "I am still working on this"
+    """Render the about page."""
+    # The real content will live in templates/about.html
+    # page_title is optional, but useful for your layout template.
+    return render_template("about.html", page_title="About this app")
 
 
 @app.route('/search', methods=['POST', 'GET'])
 def search():
-    """Search page route. Return either form page to search, or search results."""
+    """Render the search form page or handle a submitted search."""
     if request.method == 'POST':
         session['search_term'] = request.form['search']
         return redirect(url_for('results'))
@@ -33,14 +35,26 @@ def search():
 
 @app.route('/results')
 def results():
-    """Results page route. Render the search results."""
-    search_term = session['search_term']
+    """Render the results page with Wikipedia search results."""
+    search_term = session.get('search_term')
+
+    # If someone goes straight to /results without searching first,
+    # just send them back to the search page.
+    if not search_term:
+        return redirect(url_for('search'))
+
     page = get_page(search_term)
-    return render_template("results.html", page=page)
+    # Pass page, page title, and the original search term to the template
+    return render_template(
+        "results.html",
+        page=page,
+        page_title=page.title,
+        search_term=search_term
+    )
 
 
 def get_page(search_term):
-    """Get a Wikipedia page object based on the search term."""
+    """Return a Wikipedia page object based on the search term."""
     # This function is not a route
     try:
         page = wikipedia.page(search_term)
@@ -51,11 +65,11 @@ def get_page(search_term):
         # This is a disambiguation page; get the first real page (close enough)
         page_titles = wikipedia.search(search_term)
         # Sometimes the next page has the same name (different caps), so don't try the same again
-        if page_titles[1].lower() == page_titles[0].lower():
+        if len(page_titles) > 2 and page_titles[1].lower() == page_titles[0].lower():
             title = page_titles[2]
         else:
             title = page_titles[1]
-        page = get_page(wikipedia.page(title))
+        page = get_page(title)
     return page
 
 

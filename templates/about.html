@@ -1,0 +1,21 @@
+{% extends "layout.html" %}
+
+{% block title %}About{% endblock %}
+
+{% block content %}
+    <h2>About this app</h2>
+    <p>
+        This small Flask application is a demo that searches Wikipedia and displays the
+        result using Jinja templates. It was built to practise:
+    </p>
+    <ul>
+        <li>Using Flask routes and view functions</li>
+        <li>Working with HTML templates and template inheritance</li>
+        <li>Handling form input and POST requests</li>
+        <li>Using sessions to remember the last search term</li>
+        <li>Calling the Wikipedia API from Python code</li>
+    </ul>
+    <p>
+        Use the navigation links at the top of the page to return home or try a new search.
+    </p>
+{% endblock %}
